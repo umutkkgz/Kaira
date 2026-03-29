@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  kaira-eval:
+    build: .
+    container_name: kaira-eval
+    working_dir: /app
+    volumes:
+      - ./data:/app/data
+      - ./eval:/app/eval
+      - ./src:/app/src
+    # Default execution matches the paper's benchmark claims
+    command: python eval/run_experiment.py --mode=benchmark --runs=1000 --seed=42
+    
+  kaira-ablation:
+    build: .
+    container_name: kaira-ablation
+    working_dir: /app
+    volumes:
+      - ./data:/app/data
+      - ./eval:/app/eval
+      - ./src:/app/src
+    # Execute the OCS ablation study (Table 4)
+    command: python eval/run_experiment.py --mode=ablation
