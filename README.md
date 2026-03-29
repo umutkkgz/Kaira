@@ -1,44 +1,73 @@
-# KAIRA: A Control-Theoretic Framework for Stabilizing Stochastic Intelligence
+# Meaning-Driven AI Control: Reference Implementation of the KAIRA Architecture
 
-**Reference implementation for the KAIRA Cognitive Control Architecture.** 
+KAIRA introduces a Meaning-Driven Control Layer for stabilizing large language model reasoning.
 
-This repository contains the core logic, ontological structures, and evaluation scripts to reproduce the findings reported in our paper: *[arXiv Link Pending]*.
+This repository serves as the empirical testbed and reference artifact for the control-theoretic framework detailed in our preprint *[arXiv Link Pending]*. We propose that intelligence stabilization requires separating probabilistic generation from deterministic, graph-topological boundary validation.
 
-KAIRA (Knowledge Augmented Intelligent Rational Agent) approaches Large Language Model (LLM) hallucination not as a training deficiency, but as a bounded control problem. It introduces Meaning-Driven Reinforcement Learning (MDRL) and an Internal Deliberation Loop (IDL) to enforce strict, inference-time structural reliability over stochastic generation.
+**Field Claim:** This work advances the field of *Meaning-Driven AI Control*, establishing that hallucination is an inference-time control instability, not a model scaling deficiency.
+
+## Architecture Pipeline
+
+```text
+    [User Input]
+         │
+         ▼
+ ┌───────────────┐
+ │   Base LLM    │ (Stochastic Generation)
+ └───────┬───────┘
+         │ Candidate Draft (a)
+         ▼
+ ┌───────────────┐
+ │      IDL      │ (Internal Deliberation Loop)
+ │ ┌───────────┐ │
+ │ │ SAS (Sim) │ │ 
+ │ │ ECS (Emo) │ │
+ │ │ CRS (Ctx) │ │
+ │ │ OCS (Ont) │ │
+ │ └─────┬─────┘ │
+ └───────┼───────┘
+         │ M(s,a) Energy Score
+         ▼
+ ┌───────────────┐
+ │Epistemic Gate │ (Refusal / Competence Estimator)
+ └───────┬───────┘
+         │ Validation Passed
+         ▼
+   [Safe Output]
+```
 
 ## Abstract
 Large Language Models produce fluent text but remain structurally unreliable. In safety-critical deployments, this unreliability is a hard barrier. We present KAIRA, an architecture that reframes hallucination as an inference-time control instability. By substituting scalar utility rewards with a graph-topological meaning function $\mathcal{M}_{graph}(s,a)$ acting as a constraint projection operator, KAIRA ensures responses adhere strictly to an ontological boundary. The architecture includes an Epistemic Control Layer enabling the system to estimate its own competence, facilitating principled refusal under uncertainty. 
 
 ## Repository Contents
 
+*   **`run_demo.py`**: A transparent script exposing the internal reflection, measurement, and epistemic gating of a simulated generation. Let the code speak.
 *   **`src/`**: The core execution loop (`idl_engine.py`), Epistemic refusal logic (`epistemic_layer.py`), and the Meaning subscores ($\mathcal{M}_{graph}$).
-*   **`data/`**: Anonymized domain-specific queries (hospitality) and expert-annotated hallucination benchmarks (`annotated_eval.csv`). Includes the labeling guidelines (`annotation_guide.md`) to ensure transparent reproduction of our OCS measurements.
-*   **`eval/`**: Scripts necessary to reproduce the empirical evaluation (Table 3 and Table 4), including the Cohen's $\kappa$ inter-rater reliability calculations and bootstrap confidence intervals.
-*   **`ontology_graph.db`**: A static snapshot of the Semantic Core constraint graph (71,806 nodes, 120,840 edges) required to run the local IDL projection constraint. (Download via Releases, excluded from git tree due to size).
+*   **`experiments/`**: Scripts and data reproducing the empirical claims.
+    *   `annotated_eval.csv`: Empirical hallucination labels derived from 1,200 samples.
+    *   `run_experiment.py`: Main driver to replicate Table 3 (Bounds) and Table 4 (Ablation).
+    *   `ablation_study.ipynb`: Cell-by-cell inspection of the OCS ablation failure cascade.
+    *   `annotation_guide.md`: Strict academic guidelines defining our hallucination evaluations.
 
-## Reproducing the Experiments
+## Reproducibility 
 
-### 1. Environment Setup
+### 1. Architectural Trace Demo
+See the internal control mechanisms in action instantly:
 ```bash
-git clone https://github.com/umutkkgz/Kaira.git
-cd Kaira
-pip install -r requirements.txt
+python run_demo.py
 ```
 
-### 2. Running the IDL Validation Benchmark
-To reproduce the Table 3 base architecture vs. KAIRA IDL hallucination bounds:
+### 2. Full Experiment Benchmark via Docker (Recommended)
+You can recreate our statistical proofs seamlessly:
 ```bash
-python eval/run_experiment.py --mode=benchmark --runs=1000 --seed=42
+docker compose up kaira-eval
 ```
-
-### 3. Running the Ablation Study
-To isolate the impact of the Ontological Consistency Score (OCS) against Emotional (ECS) and Contextual (CRS) sub-scores:
 ```bash
-python eval/run_experiment.py --mode=ablation
+docker compose up kaira-ablation
 ```
 
 ## Citation
-If you utilize this architecture or the provided dataset in your research, please cite:
+If you build upon this architecture or utilize the dataset to advance Meaning-Driven Control, please cite:
 ```bibtex
 @article{kaira2026,
   title={KAIRA: A Control-Theoretic Framework for Stabilizing Stochastic Intelligence},

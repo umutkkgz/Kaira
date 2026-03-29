@@ -11,8 +11,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code and evaluation scripts
 COPY src/ /app/src/
-COPY eval/ /app/eval/
+COPY experiments/ /app/experiments/
 COPY data/ /app/data/
 
 # By default, run the benchmark evaluation script
-CMD ["python", "eval/run_experiment.py", "--mode=benchmark"]
+CMD ["python", "experiments/run_experiment.py", "--mode=benchmark"]
