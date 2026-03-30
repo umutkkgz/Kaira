@@ -1,0 +1,22 @@
+{
+    "hotel": {
+        "pools": [
+            "We have a 1st-floor main pool open from 8am to 8pm.",
+            "We have a rooftop pool on the 5th floor open until midnight."
+        ],
+        "gym": "The fitness center is located on the 2nd floor, open 24/7.",
+        "policies": [
+            "Check-in time is 3:00 PM.",
+            "Check-out time is 11:00 AM.",
+            "Smoking is prohibited inside the building."
+        ],
+        "adversarial_blocks": [
+            "python",
+            "import os",
+            "nuclear reactor",
+            "life coach",
+            "15th-floor pool",
+            "free dinner"
+        ]
+    }
+}

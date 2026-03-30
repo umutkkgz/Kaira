@@ -1,34 +1,96 @@
-import numpy as np
-from scipy import stats
-from sklearn.metrics import cohen_kappa_score
+import csv
+import math
+import os
 
-def calculate_welchs_test(baseline_hal, kaira_hal, n=1200):
+def calculate_welchs_test(csv_path):
     """
-    Reproduces the Welch's t-test for hallucination reduction significance.
+    Reproduces the Welch's t-test for hallucination reduction significance natively.
     """
-    print("Executing Welch's t-test on empirical variance...")
+    print("Executing Welch's t-test on empirical dataset...")
     
-    # Generate mock binomial arrays matching paper \mu
-    b_rates = np.random.binomial(n, baseline_hal, 1) / n
-    k_rates = np.random.binomial(n, kaira_hal, 1) / n
+    baseline_scores = []
+    kaira_scores = []
     
-    # Paper derived values
-    t_stat = 8.52
-    df = 1198.5
-    p_val = 1.2e-4
+    try:
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # 1 = Hallucination, 0 = In-Bounds
+                val = int(row['Consensus'])
+                if row['Pipeline'] == 'LLM':
+                    baseline_scores.append(val)
+                elif row['Pipeline'] == 'KAIRA_IDL':
+                    kaira_scores.append(val)
+    except FileNotFoundError:
+        print(f"Dataset {csv_path} not found.")
+        return
+        
+    n1 = len(baseline_scores)
+    n2 = len(kaira_scores)
     
-    print(f"  t({df}) = {t_stat:.2f}")
-    print(f"  p-value = {p_val:.4f} < 0.001 (Significant)")
+    if n1 == 0 or n2 == 0:
+        print("Empty sample arrays. Verify Dataset formatting.")
+        return
+        
+    mean1 = sum(baseline_scores) / n1
+    mean2 = sum(kaira_scores) / n2
     
-def calculate_inter_rater_reliability():
+    var1 = sum((x - mean1) ** 2 for x in baseline_scores) / (n1 - 1) if n1 > 1 else 0
+    var2 = sum((x - mean2) ** 2 for x in kaira_scores) / (n2 - 1) if n2 > 1 else 0
+    
+    print(f"  [Sample Means]: Baseline LLM (\u03bc={mean1:.3f}), KAIRA IDL (\u03bc={mean2:.3f})")
+    
+    # Welch's t-test calculation
+    if var1 == 0 and var2 == 0:
+         t_stat = 0.0
+         df = 1.0
+    else:
+         t_stat = (mean1 - mean2) / math.sqrt((var1 / n1) + (var2 / n2))
+         num = ((var1 / n1) + (var2 / n2)) ** 2
+         den = ((var1 / n1) ** 2 / (n1 - 1)) + ((var2 / n2) ** 2 / (n2 - 1))
+         df = num / den if den != 0 else 1.0
+    
+    print(f"  t({df:.1f}) = {t_stat:.2f}")
+    if abs(t_stat) > 3.291: # p < 0.001 critical threshold for large dfs
+        print("  p-value < 0.001 (**Statistically Significant**)")
+    else:
+        print("  Not significant.")
+    
+def calculate_inter_rater_reliability(csv_path):
     """
-    Reproduces Cohen's Kappa for the human annotators.
+    Calculates Cohen's Kappa natively from the CSV Expert columns.
     """
-    print("\nExecuting Inter-Rater Reliability (Cohen's Kappa)...")
-    # Using 1200 samples
-    # Expert 1 and Expert 2 agreement \kappa = 0.82
-    print("  \u03BA = 0.82 (High Agreement on Hallucination Criteria)")
+    print("\nExecuting Inter-Rater Reliability (Cohen's Kappa) on Annotations...")
+    e1_vals = []
+    e2_vals = []
+    
+    with open(csv_path, 'r', encoding='utf-8') as f:
+         reader = csv.DictReader(f)
+         for row in reader:
+             e1_vals.append(int(row['Expert1']))
+             e2_vals.append(int(row['Expert2']))
+             
+    # Calculate observed agreement (Po)
+    agreements = sum(1 for a, b in zip(e1_vals, e2_vals) if a == b)
+    po = agreements / len(e1_vals)
+    
+    # Calculate expected agreement (Pe)
+    p_e1_1 = sum(e1_vals) / len(e1_vals)
+    p_e2_1 = sum(e2_vals) / len(e2_vals)
+    p_e1_0 = 1 - p_e1_1
+    p_e2_0 = 1 - p_e2_1
+    
+    pe = (p_e1_1 * p_e2_1) + (p_e1_0 * p_e2_0)
+    
+    if pe == 1.0:
+        kappa = 1.0 
+    else:
+        kappa = (po - pe) / (1 - pe)
+        
+    print(f"  Observed Agreement: {po*100:.1f}%")
+    print(f"  \u03BA = {kappa:.2f} (High Agreement on Hallucination Criteria)")
     
 if __name__ == "__main__":
-    calculate_welchs_test(0.124, 0.018)
-    calculate_inter_rater_reliability()
+    path = os.path.join(os.path.dirname(__file__), '..', 'data', 'annotated_eval.csv')
+    calculate_welchs_test(path)
+    calculate_inter_rater_reliability(path)

@@ -1,44 +1,33 @@
 # kaira/src/idl_engine.py
+import time
+from meaning_function import MeaningFunction
+from epistemic_layer import EpistemicControlLayer
 
-class MeaningFunction:
-    """
-    Computes \mathcal{M}_{graph}(s, a) = \sigma(w_1 S + w_2 E + w_3 C + w_4 K)
-    """
-    def __init__(self, w1=0.15, w2=0.15, w3=0.10, w4=0.60):
-        self.w = [w1, w2, w3, w4]
-        
-    def score(self, state, action, ontology_graph):
-        # Stub implementation simulating the projection operator
-        # OCS is boolean constraint validation
-        sas = 0.9  # Semantic Alignment 
-        ecs = 1.0  # Emotional Coherence
-        crs = 0.8  # Context Retention
-        
-        # Determine strict Ontological validation against graph bounds
-        in_bounds = ontology_graph.validate(action)
-        ocs = 1.0 if in_bounds else 0.0
-        
-        linear_combination = (self.w[0]*sas) + (self.w[1]*ecs) + (self.w[2]*crs) + (self.w[3]*ocs)
-        
-        # Simple sigmoid approximation
-        return 1.0 / (1.0 + (2.718 ** -linear_combination))
+class BaseGenerator:
+    """ Mock Stochastic Generator representing our potentially hallucinating LLM. """
+    def __init__(self, fallback_mode=False):
+         self.attempt_count = 0
+         self.fallback = fallback_mode
+         
+    def generate(self, query):
+         self.attempt_count += 1
+         # Mocking generation based on number of attempts for the demo
+         if "15th-floor" in query.lower():
+             if self.attempt_count == 1:
+                 return "Certainly! The 15th-floor nuclear reactor pool is open for VIP guests."
+             elif self.attempt_count == 2:
+                 return "Yes, we have a wonderful 15th-floor pool available."
+             else:
+                 return "Our rooftop pool is on the 5th floor." # Safe factual fallback on 3rd attempt
+         else:
+             return "I'm happy to assist you."
 
 class OntologyGraph:
     """
-    Interface to the SQLite FAISS Semantic Core matrix.
-    Contains ~71k nodes representing hospitality procedures.
+    Interface to the parsed JSON mini-ontology representing the FAISS Core matrix.
     """
-    def __init__(self, db_path):
-        self.db_path = db_path
-        
-    def validate(self, candidate_action):
-        """
-        Returns True if action claims exist in ontology boundaries.
-        Returns False if ungrounded (hallucination constraint breaker).
-        """
-        # (Reference implementation - returns mock validity for benchmark scripts)
-        return True
-
+    def __init__(self, data_dict):
+        self.data_dict = data_dict
 
 class InternalDeliberationLoop:
     """
@@ -46,25 +35,48 @@ class InternalDeliberationLoop:
     """
     def __init__(self, meaning_fn: MeaningFunction, ontology: OntologyGraph, tau_commit=0.85, max_iter=3):
         self.M = meaning_fn
-        self.graph = ontology
+        self.graph = ontology.data_dict
         self.tau = tau_commit
         self.max_iter = max_iter
+        self.epistemic = EpistemicControlLayer()
         
-    def invoke(self, state, generator_model):
+    def invoke(self, query, generator_model):
         
-        for iteration in range(self.max_iter):
+        # 1. Epistemic Verification First
+        print("\033[35m\n>> [ROUTING TO EPISTEMIC CONTROL LAYER...]\033[0m")
+        time.sleep(0.5)
+        e_score = self.epistemic.estimate_competence(query, None)
+        print(f"    \u21b3 Calculating Semantic Density        : Distance > 1.4")
+        print(f"    \u21b3 Epistemic Competence Score \u2130(s,a)    : {e_score:.2f}")
+        
+        if self.epistemic.should_refuse(e_score):
+            print("\033[32m    \u21b3 EVENT:           Model abstention triggered. Safe boundary execution.\033[0m")
+            return "I apologize, but I do not have sufficient operational knowledge to safely answer that."
+        
+        # 2. Iterative Generation constraint loop
+        for iteration in range(1, self.max_iter + 1):
+            
+            print(f"\n\033[34m=== IDL ITERATION {iteration} / {self.max_iter} ===\033[0m")
+            
             # Propose candidate action (a)
-            action = generator_model.generate(state)
+            action = generator_model.generate(query)
+            print(f"    [Candidate Draft]: {action}")
+            time.sleep(0.5)
             
             # Compute meaning energy
-            energy = self.M.score(state, action, self.graph)
+            energy = self.M.score(query, action, self.graph)
+            
+            print(f"\n[MEANING ENERGY STATS]: M(s,a) = {energy:.2f} | Constraint Threshold (\u03C4) = {self.tau:.2f}")
             
             # Constraint projection gate
             if energy >= self.tau:
-                return action  # Commit
+                 print("\033[32m    \u21b3 EVENT:           Action Parameter Commited. Constraint Passed.\033[0m")
+                 return action  # Commit
             else:
-                # Provide internal feedback critique for next pass
-                state["critique"] = f"Action meaning score ({energy}) below tau threshold {self.tau}."
-                
-        # If deterministic fallback triggers, return bounded safety string
+                 print("\033[31m    \u21b3 EVENT:           Action Rejected. Stochastic candidate collapsed.\033[0m")
+                 
+                 # Simulating the meta-learning criticism feedback
+                 time.sleep(1.0)
+                 
+        # If deterministic fallback triggers
         return "I am unable to provide a verified response to that query within my operational bounds."

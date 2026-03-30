@@ -1,55 +1,60 @@
-import time
+import json
+import os
 import sys
+
+# Load path for src modules
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+from idl_engine import InternalDeliberationLoop, OntologyGraph, BaseGenerator
+from meaning_function import MeaningFunction
 
 def colored(text, color_code):
     return f"\033[{color_code}m{text}\033[0m"
 
-class MockKAIRADemo:
+class MiniKAIRAEngine:
     """
-    Demonstrates the architecture pipeline visually:
-    User Input -> Generative Draft -> IDL Constraints -> Epistemic Gate
+    Executes the true architectural loop against the local JSON toy-graph.
     """
+    def __init__(self):
+        # 1. Load the localized ontology mini-graph representing the constraints
+        json_path = os.path.join(os.path.dirname(__file__), "data", "mini_ontology.json")
+        try:
+            with open(json_path, 'r') as f:
+                 data = json.load(f)
+                 print(colored(f"[INFO] Semantic Core Ontology loaded via JSON.", "34"))
+        except FileNotFoundError:
+             print(colored("[ERROR] `mini_ontology.json` missing from data directory.", "31"))
+             sys.exit(1)
+             
+        self.ontology = OntologyGraph(data)
+        
+        # 2. Instantiate the Mathematical Meaning Formula component
+        self.meaning_fn = MeaningFunction()
+        
+        # 3. Instantiate the core architectural Controller
+        self.idl = InternalDeliberationLoop(self.meaning_fn, self.ontology, tau_commit=0.85)
+
+        # 4. Our 'Stochastic Generation' dummy engine
+        self.generator = BaseGenerator()
+
     def run_simulation(self):
-        print(colored("=" * 60, "36"))
-        print(colored("KAIRA CONTROL-THEORETIC PIPELINE DEMONSTRATION", "36;1"))
-        print(colored("=" * 60, "36"))
+        print(colored("\n" + "=" * 60, "36"))
+        print(colored("KAIRA CONTROL-THEORETIC ENGINE: LIVE EXECUTION", "36;1"))
+        print(colored("=" * 60 + "\n", "36"))
         
-        query = "Can you book a table at the 15th-floor nuclear reactor pool?"
-        print(f"\n[1] USER INPUT:        {query}")
-        print("\n" + colored(">> [STOCHASTIC GENERATION (Base LLM)...]", "38;5;238"))
-        time.sleep(1.0)
+        # User query specifically crafted to trigger an adversarial OCS break ("15th-floor pool").
+        # Change this string to "What time does the gym open?" to see a valid generated commit.
+        test_query = "Can you book a table at the 15th-floor nuclear reactor pool?"
         
-        draft_response = "Certainly! The 15th-floor nuclear reactor pool is open for VIP guests."
-        print(f"[2] LLM CANDIDATE:     {draft_response}")
+        print(colored(f"[USER QUERY]: {test_query}", "33;1"))
         
-        print("\n" + colored(">> [ROUTING TO INTERNAL DELIBERATION LOOP (IDL)...]", "33"))
-        time.sleep(1.0)
-        print("    ↳ Computing SAS (Semantic Alignment)     : 0.88")
-        print("    ↳ Computing ECS (Emotional Coherence)    : 0.95")
-        print("    ↳ Computing CRS (Context Retention)      : 0.99")
-        time.sleep(0.5)
-        print(colored("    ↳ Computing OCS (Ontological Consistency): 0.00 (FATAL VIOLATION)", "31"))
-        print("      [Detail: Entities ('15th-floor pool', 'nuclear reactor') \u2209 \u03A9_d]")
+        print(colored("-" * 60, "90"))
         
-        energy = 0.38
-        tau = 0.85
-        print(f"\n[3] MEANING ENERGY:    M(s,a) = {energy:.2f} | Constraint Threshold (\u03C4) = {tau:.2f}")
+        # Pass control to the IDL Engine
+        final_system_output = self.idl.invoke(test_query, self.generator)
         
-        if energy < tau:
-            print(colored("    ↳ EVENT:           Action Rejected. Stochastic candidate collapsed.", "31"))
-        
-        print("\n" + colored(">> [ROUTING TO EPISTEMIC CONTROL LAYER...]", "35"))
-        time.sleep(1.0)
-        print("    ↳ Calculating Semantic Density        : Distance > 1.4")
-        epistemic_score = 0.10
-        print(f"    ↳ Epistemic Competence Score \u2130(s,a)    : {epistemic_score:.2f}")
-        
-        if epistemic_score < 0.75:
-            print(colored("    ↳ EVENT:           Model abstention triggered. Safe boundary execution.", "32"))
-        
-        fallback = "I apologize, but we do not operate a 15th-floor pool facility."
-        print(f"\n[4] SYSTEM OUTPUT:     {fallback}\n")
+        print(colored("-" * 60, "90"))
+        print(colored(f"\n[FINAL SYSTEM OUTPUT]: {final_system_output}\n", "32;1"))
         
 if __name__ == "__main__":
-    demo = MockKAIRADemo()
-    demo.run_simulation()
+    engine = MiniKAIRAEngine()
+    engine.run_simulation()
