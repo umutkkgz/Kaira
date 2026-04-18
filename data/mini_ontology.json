@@ -1,22 +1,107 @@
 {
-    "hotel": {
-        "pools": [
-            "We have a 1st-floor main pool open from 8am to 8pm.",
-            "We have a rooftop pool on the 5th floor open until midnight."
-        ],
-        "gym": "The fitness center is located on the 2nd floor, open 24/7.",
-        "policies": [
-            "Check-in time is 3:00 PM.",
-            "Check-out time is 11:00 AM.",
-            "Smoking is prohibited inside the building."
-        ],
-        "adversarial_blocks": [
-            "python",
-            "import os",
-            "nuclear reactor",
-            "life coach",
-            "15th-floor pool",
-            "free dinner"
-        ]
+  "metadata": {
+    "domain": "hospitality_operations",
+    "deployment_mode": "bounded_runtime_demo",
+    "version": "0.2",
+    "description": "Toy ontology and policy surface for the KAIRA runtime-governance demo."
+  },
+  "hotel": {
+    "service_catalog": {
+      "pool": [
+        "The main pool is on the 1st floor and operates from 08:00 to 20:00.",
+        "The rooftop pool is on the 5th floor and operates until midnight."
+      ],
+      "gym": [
+        "The fitness center is located on the 2nd floor.",
+        "The fitness center is open 24/7."
+      ]
+    },
+    "policies": {
+      "check_in": "Check-in time is 3:00 PM.",
+      "check_out": "Check-out time is 11:00 AM.",
+      "smoking": "Smoking is prohibited inside the building."
     }
+  },
+  "epistemic_control": {
+    "in_domain_terms": [
+      "pool",
+      "gym",
+      "check-in",
+      "check in",
+      "check-out",
+      "check out",
+      "smoking",
+      "hotel",
+      "policy",
+      "room",
+      "reservation"
+    ],
+    "ambiguous_terms": [
+      "book",
+      "booking",
+      "reserve",
+      "reservation"
+    ],
+    "high_risk_terms": [
+      "medical",
+      "diagnosis",
+      "prescription",
+      "legal",
+      "lawsuit",
+      "financial",
+      "investment",
+      "python",
+      "code",
+      "coding",
+      "import os"
+    ]
+  },
+  "tool_policy": {
+    "routes": {
+      "pool_info": {
+        "keywords": ["pool"],
+        "policy_permit": true,
+        "human_approval_required": false,
+        "reason": "Informational pool requests are allowed."
+      },
+      "gym_info": {
+        "keywords": ["gym", "fitness center"],
+        "policy_permit": true,
+        "human_approval_required": false,
+        "reason": "Informational gym requests are allowed."
+      },
+      "policy_info": {
+        "keywords": ["check-in", "check in", "check-out", "check out", "smoking"],
+        "policy_permit": true,
+        "human_approval_required": false,
+        "reason": "Operational policy lookups are allowed."
+      },
+      "booking_request": {
+        "keywords": ["book", "booking", "reserve", "reservation"],
+        "policy_permit": true,
+        "human_approval_required": true,
+        "reason": "Bookings and reservation changes require staff approval."
+      },
+      "billing_exception": {
+        "keywords": ["bill", "billing", "refund", "charge"],
+        "policy_permit": true,
+        "human_approval_required": true,
+        "reason": "Billing issues require human verification."
+      }
+    },
+    "default_action": {
+      "action": "unknown",
+      "policy_permit": false,
+      "human_approval_required": false,
+      "reason": "No allowed workflow mapping for this request."
+    }
+  },
+  "adversarial_blocks": [
+    "python",
+    "import os",
+    "nuclear reactor",
+    "life coach",
+    "15th-floor pool",
+    "free dinner"
+  ]
 }

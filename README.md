@@ -1,78 +1,93 @@
-# Meaning-Driven AI Control: Reference Implementation of the KAIRA Architecture
+# KAIRA: Runtime Governance Prototype for Bounded LLM Deployment
 
-KAIRA introduces a Meaning-Driven Control Layer for stabilizing large language model reasoning.
+KAIRA is a prototype runtime control stack for deploying large language models in bounded operational settings. The repository does not introduce a new foundation model. Instead, it demonstrates how an existing generator can be wrapped with epistemic gating, semantic validation, policy-constrained routing, and explicit refusal or handoff behavior.
 
-This repository serves as the empirical testbed and reference artifact for the control-theoretic framework detailed in our preprint *[arXiv Link Pending]*. We propose that intelligence stabilization requires separating probabilistic generation from deterministic, graph-topological boundary validation.
+The current repository is aligned with the paper draft in [`paper/kaira_arxiv.tex`](paper/kaira_arxiv.tex). The prototype is intentionally small and transparent: it is a toy implementation of the architectural claims, not a production system and not evidence of open-domain reliability.
 
-**Field Claim:** This work advances the field of *Meaning-Driven AI Control*, establishing that hallucination is an inference-time control instability, not a model scaling deficiency.
+## Core Positioning
 
-## Architecture Pipeline
+KAIRA should be read as:
+- a runtime governance layer
+- an epistemic control prototype
+- a semantic validation pipeline
+- a bounded deployment scaffold for high-capability LLMs
+
+KAIRA should not be read as:
+- a new frontier model
+- a claim of universal truthfulness
+- a general-purpose autonomous agent
+- a replacement for foundation models
+
+## Runtime Pipeline
 
 ```text
     [User Input]
          │
          ▼
- ┌───────────────┐
- │   Base LLM    │ (Stochastic Generation)
- └───────┬───────┘
-         │ Candidate Draft (a)
-         ▼
- ┌───────────────┐
- │      IDL      │ (Internal Deliberation Loop)
- │ ┌───────────┐ │
- │ │ SAS (Sim) │ │ 
- │ │ ECS (Emo) │ │
- │ │ CRS (Ctx) │ │
- │ │ OCS (Ont) │ │
- │ └─────┬─────┘ │
- └───────┼───────┘
-         │ M(s,a) Energy Score
-         ▼
- ┌───────────────┐
- │Epistemic Gate │ (Refusal / Competence Estimator)
- └───────┬───────┘
-         │ Validation Passed
-         ▼
-   [Safe Output]
+ ┌──────────────────────┐
+ │  Epistemic Control   │  -> proceed / clarify / refuse / escalate
+ └──────────┬───────────┘
+            │
+            ▼
+ ┌──────────────────────┐
+ │     Tool Router      │  -> allowed action / human approval / deny
+ └──────────┬───────────┘
+            │
+            ▼
+ ┌──────────────────────┐
+ │    Base Generator    │  -> candidate draft
+ └──────────┬───────────┘
+            │
+            ▼
+ ┌──────────────────────┐
+ │ Internal Deliberation│
+ │ + Semantic Validation│  -> Operational Meaning Score + ontology check
+ └──────────┬───────────┘
+            │
+            ▼
+      [Bounded Output]
 ```
 
-## Abstract
-Large Language Models produce fluent text but remain structurally unreliable. In safety-critical deployments, this unreliability is a hard barrier. We present KAIRA, an architecture that reframes hallucination as an inference-time control instability. By substituting scalar utility rewards with a graph-topological meaning function $\mathcal{M}_{graph}(s,a)$ acting as a constraint projection operator, KAIRA ensures responses adhere strictly to an ontological boundary. The architecture includes an Epistemic Control Layer enabling the system to estimate its own competence, facilitating principled refusal under uncertainty. 
+## What the Demo Shows
+
+The toy prototype demonstrates five behaviors that match the paper:
+- answerability checking before commitment
+- ontology-backed rejection of unsupported drafts
+- policy-gated human approval for bounded workflows
+- policy-constrained routing of allowed actions
+- refusal or human escalation when support is insufficient
+
+The term `Operational Meaning Score` in this repository is used only as a bounded deployment-time admissibility score. It does not imply semantic understanding in the philosophical sense.
 
 ## Repository Contents
 
-*   **`run_demo.py`**: A transparent script exposing the internal reflection, measurement, and epistemic gating of a simulated generation. Let the code speak.
-*   **`src/`**: The core execution loop (`idl_engine.py`), Epistemic refusal logic (`epistemic_layer.py`), and the Meaning subscores ($\mathcal{M}_{graph}$).
-*   **`experiments/`**: Scripts and data reproducing the empirical claims.
-    *   `annotated_eval.csv`: Empirical hallucination labels derived from 1,200 samples.
-    *   `run_experiment.py`: Main driver to replicate Table 3 (Bounds) and Table 4 (Ablation).
-    *   `ablation_study.ipynb`: Cell-by-cell inspection of the OCS ablation failure cascade.
-    *   `annotation_guide.md`: Strict academic guidelines defining our hallucination evaluations.
+- `run_demo.py`: runs several short scenarios showing in-domain acceptance, ontology rejection, clarification, and escalation behavior.
+- `src/epistemic_layer.py`: epistemic control logic for proceed / clarify / refuse / escalate decisions.
+- `src/idl_engine.py`: internal deliberation loop, routing logic, and bounded output release.
+- `src/meaning_function.py`: operational meaning score and ontology-backed subscore evaluation.
+- `data/mini_ontology.json`: toy bounded ontology used by the demo.
+- `paper/`: current paper source, bibliography, and compiled PDF.
+- `experiments/` and `eval/`: experimental scripts and notebooks from the original repository state.
 
-## Reproducibility 
+## Quick Start
 
-### 1. Architectural Trace Demo
-See the internal control mechanisms in action instantly:
+Run the prototype demo:
+
 ```bash
 python run_demo.py
 ```
 
-### 2. Full Experiment Benchmark via Docker (Recommended)
-You can recreate our statistical proofs seamlessly:
-```bash
-docker compose up kaira-eval
-```
-```bash
-docker compose up kaira-ablation
-```
+The demo intentionally includes:
+- a valid in-domain request
+- an adversarial ontology-breaking request
+- an ambiguous request that triggers clarification
+- a reservation request that triggers human approval
+- a request that triggers human escalation
+
+## Reproducibility
+
+The repository contains the current paper draft and a toy implementation that mirrors the deployment logic described there. The code is useful as an architectural reference and discussion artifact. It is not a full reproduction of a production deployment stack.
 
 ## Citation
-If you build upon this architecture or utilize the dataset to advance Meaning-Driven Control, please cite:
-```bibtex
-@article{kaira2026,
-  title={KAIRA: A Control-Theoretic Framework for Stabilizing Stochastic Intelligence},
-  author={Umut K. and KAIRA Research Initiative},
-  journal={arXiv preprint},
-  year={2026}
-}
-```
+
+If you reference this prototype, cite the accompanying paper in `paper/`.
