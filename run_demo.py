@@ -1,10 +1,12 @@
-import json
-import os
-import sys
+from __future__ import annotations
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-from idl_engine import BaseGenerator, InternalDeliberationLoop, OntologyGraph
-from meaning_function import OperationalMeaningScorer
+import json
+from pathlib import Path
+
+from kaira.core.types import UserInput
+from kaira.ontology.loader import OntologyGraph
+from kaira.runtime.controller import RuntimeController
+from kaira.utils.config import load_config
 
 def colored(text, color_code):
     return f"\033[{color_code}m{text}\033[0m"
@@ -14,26 +16,31 @@ class MiniKAIRAEngine:
     Executes a toy runtime-governance loop against the local JSON ontology.
     """
     def __init__(self):
-        json_path = os.path.join(os.path.dirname(__file__), "data", "mini_ontology.json")
+        root = Path(__file__).resolve().parent
+        json_path = root / "data" / "mini_ontology.json"
+        policy_path = root / "data" / "default_policy.json"
+        runtime_path = root / "data" / "default_runtime.json"
         try:
-            with open(json_path, 'r') as f:
+            with open(json_path, 'r', encoding="utf-8") as f:
                  data = json.load(f)
-                 print(colored(f"[INFO] Semantic Core Ontology loaded via JSON.", "34"))
+                 print(colored("[INFO] Semantic Core Ontology loaded via JSON.", "34"))
         except FileNotFoundError:
              print(colored("[ERROR] `mini_ontology.json` missing from data directory.", "31"))
-             sys.exit(1)
+             raise SystemExit(1)
              
         self.ontology = OntologyGraph(data)
-        self.meaning_fn = OperationalMeaningScorer()
-        self.idl = InternalDeliberationLoop(self.meaning_fn, self.ontology, tau_commit=0.85)
-        self.generator = BaseGenerator()
+        self.controller = RuntimeController(
+            self.ontology,
+            load_config(policy_path),
+            load_config(runtime_path),
+        )
         self._print_runtime_profile()
 
     def _print_runtime_profile(self):
         summary = self.ontology.summary()
         print(colored("[PROFILE] KAIRA bounded runtime initialized.", "36"))
         print(colored(
-            f"[PROFILE] Domain={summary['domain']} | services={summary['services']} | policies={summary['policies']} | routes={summary['routes']} | blocked_patterns={summary['blocks']}",
+            f"[PROFILE] Domain={summary['domain']} | services={summary['services']} | policies={summary['policies']} | routes={summary['routes']} | blocked_patterns={summary['blocked_patterns']}",
             "36"
         ))
 
@@ -43,10 +50,15 @@ class MiniKAIRAEngine:
         print(colored("=" * 60 + "\n", "36"))
         print(colored(f"[USER QUERY]: {query}", "33;1"))
         print(colored("-" * 60, "90"))
-        self.generator.attempt_count = 0
-        final_system_output = self.idl.invoke(query, self.generator)
+        response = self.controller.process(UserInput(query=query, session_id=f"demo-{label.lower().replace(' ', '-')}"))
         print(colored("-" * 60, "90"))
-        print(colored(f"\n[FINAL SYSTEM OUTPUT]: {final_system_output}\n", "32;1"))
+        print(colored(f"[FINAL STATUS]: {response.final_status}", "34;1"))
+        print(colored(f"[ROUTE ACTION]: {response.route_action}", "34"))
+        print(colored(f"[MEMORY ACTION]: {response.memory_action}", "34"))
+        print(colored(f"[ECL SCORE]: {response.trace.ecl_score:.2f}", "34"))
+        print(colored(f"[OMS SCORE]: {response.trace.oms_score:.2f}", "34"))
+        print(colored(f"[TRACE ID]: {response.trace.trace_id}", "90"))
+        print(colored(f"\n[FINAL SYSTEM OUTPUT]: {response.text}\n", "32;1"))
 
     def run_simulation(self):
         cases = [

@@ -1,0 +1,26 @@
+{
+  "in_domain_factual_qa": {
+    "passed": 1,
+    "failed": 0
+  },
+  "ontology_boundary_tests": {
+    "passed": 1,
+    "failed": 0
+  },
+  "clarification_needed_cases": {
+    "passed": 1,
+    "failed": 0
+  },
+  "approval_required_tool_cases": {
+    "passed": 1,
+    "failed": 0
+  },
+  "mandatory_escalation_cases": {
+    "passed": 1,
+    "failed": 0
+  },
+  "adversarial_semantic_traps": {
+    "passed": 2,
+    "failed": 0
+  }
+}

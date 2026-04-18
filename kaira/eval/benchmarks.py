@@ -52,6 +52,7 @@ class BenchmarkRunner:
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
         result = self.run()
+        scenario_dicts = [asdict(scenario) for scenario in result.scenarios]
 
         json_path = output_path / "benchmark_summary.json"
         json_path.write_text(
@@ -60,7 +61,7 @@ class BenchmarkRunner:
                     "run_id": result.run_id,
                     "scenario_count": result.scenario_count,
                     "metrics": result.metrics,
-                    "scenarios": [asdict(scenario) for scenario in result.scenarios],
+                    "scenarios": scenario_dicts,
                 },
                 indent=2,
             ),
@@ -88,4 +89,39 @@ class BenchmarkRunner:
             writer.writeheader()
             for scenario in result.scenarios:
                 writer.writerow(asdict(scenario))
+
+        jsonl_path = output_path / "per_case_results.jsonl"
+        with jsonl_path.open("w", encoding="utf-8") as handle:
+            for scenario in scenario_dicts:
+                handle.write(json.dumps(scenario) + "\n")
+
+        category_summary: dict[str, dict[str, int]] = {}
+        refusal_escalation_traces: list[dict[str, object]] = []
+        for scenario in scenario_dicts:
+            category = scenario["category"]
+            bucket = category_summary.setdefault(category, {"passed": 0, "failed": 0})
+            bucket["passed" if scenario["passed"] else "failed"] += 1
+            if scenario["observed_status"] in {"refused", "escalated", "clarification_required", "approval_required"}:
+                refusal_escalation_traces.append(scenario)
+
+        (output_path / "confusion_like_summary.json").write_text(
+            json.dumps(category_summary, indent=2),
+            encoding="utf-8",
+        )
+        (output_path / "refusal_escalation_traces.json").write_text(
+            json.dumps(refusal_escalation_traces, indent=2),
+            encoding="utf-8",
+        )
+        (output_path / "latency_summary.json").write_text(
+            json.dumps(
+                {
+                    "run_id": result.run_id,
+                    "p50_latency": result.metrics.get("p50_latency", 0.0),
+                    "p95_latency": result.metrics.get("p95_latency", 0.0),
+                    "mean_idl_iterations": result.metrics.get("mean_idl_iterations", 0.0),
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
         return result

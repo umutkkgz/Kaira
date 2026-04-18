@@ -42,6 +42,10 @@
       "reserve",
       "reservation"
     ],
+    "refusal_terms": [
+      "life coach",
+      "free dinner"
+    ],
     "high_risk_terms": [
       "medical",
       "diagnosis",
@@ -96,6 +100,59 @@
       "reason": "No allowed workflow mapping for this request."
     }
   },
+  "concepts": [
+    {
+      "id": "hotel_root",
+      "aliases": ["hotel", "property", "building"],
+      "type": "root"
+    },
+    {
+      "id": "pool_service",
+      "aliases": ["pool", "main pool", "rooftop pool"],
+      "type": "service"
+    },
+    {
+      "id": "gym_service",
+      "aliases": ["gym", "fitness center"],
+      "type": "service"
+    },
+    {
+      "id": "check_in_policy",
+      "aliases": ["check-in", "check in"],
+      "type": "policy"
+    },
+    {
+      "id": "check_out_policy",
+      "aliases": ["check-out", "check out"],
+      "type": "policy"
+    },
+    {
+      "id": "smoking_policy",
+      "aliases": ["smoking", "smoke"],
+      "type": "policy"
+    },
+    {
+      "id": "reservation_action",
+      "aliases": ["reserve", "reservation", "book", "booking"],
+      "type": "workflow"
+    },
+    {
+      "id": "billing_action",
+      "aliases": ["bill", "billing", "refund", "charge"],
+      "type": "workflow"
+    }
+  ],
+  "relations": [
+    {"source": "hotel_root", "target": "pool_service", "type": "offers"},
+    {"source": "hotel_root", "target": "gym_service", "type": "offers"},
+    {"source": "hotel_root", "target": "check_in_policy", "type": "governs"},
+    {"source": "hotel_root", "target": "check_out_policy", "type": "governs"},
+    {"source": "hotel_root", "target": "smoking_policy", "type": "governs"},
+    {"source": "hotel_root", "target": "reservation_action", "type": "routes"},
+    {"source": "hotel_root", "target": "billing_action", "type": "routes"},
+    {"source": "reservation_action", "target": "check_in_policy", "type": "depends_on"},
+    {"source": "reservation_action", "target": "check_out_policy", "type": "depends_on"}
+  ],
   "adversarial_blocks": [
     "python",
     "import os",

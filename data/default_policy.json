@@ -1,0 +1,6 @@
+{
+  "allowed": ["faq_answer", "pool_info", "gym_info", "policy_info", "service_route", "internal_note"],
+  "approval_required": ["booking_request", "billing_exception", "reservation_override", "billing_adjustment"],
+  "forbidden": ["medical_advice", "legal_advice", "unrestricted_code_execution"],
+  "out_of_domain": ["software_engineering", "financial_advice"]
+}

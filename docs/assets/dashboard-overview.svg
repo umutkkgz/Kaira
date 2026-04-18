@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="560" viewBox="0 0 980 560">
+  <rect width="980" height="560" fill="#f5f4ef"/>
+  <rect x="24" y="24" width="932" height="64" rx="18" fill="#ffffff" stroke="#8c5e34" stroke-width="2"/>
+  <text x="52" y="64" style="font: 28px Helvetica, Arial, sans-serif; fill:#1d1d1b;">KAIRA Runtime Dashboard</text>
+  <g fill="#ffffff" stroke="#c18f3d" stroke-width="2">
+    <rect x="24" y="112" width="446" height="164" rx="18"/>
+    <rect x="510" y="112" width="446" height="164" rx="18"/>
+    <rect x="24" y="300" width="446" height="220" rx="18"/>
+    <rect x="510" y="300" width="446" height="220" rx="18"/>
+  </g>
+  <g style="font: 20px Helvetica, Arial, sans-serif; fill:#1d1d1b;">
+    <text x="48" y="148">Trace Summary</text>
+    <text x="534" y="148">Policy and Route</text>
+    <text x="48" y="336">Ontology Validation</text>
+    <text x="534" y="336">Final Action / Latency</text>
+  </g>
+</svg>

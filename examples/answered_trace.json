@@ -1,0 +1,15 @@
+{
+  "trace_id": "example-answered-trace",
+  "query": "What time does the gym open?",
+  "ecl_score": 0.85,
+  "ecl_reason": "Query appears to be supported by the bounded ontology.",
+  "ecl_decision": "proceed",
+  "idl_iterations": 1,
+  "validator_status": "passed",
+  "ontology_hits": ["gym_service"],
+  "route_decision": "gym_info",
+  "handoff_decision": "not_required",
+  "final_status": "answered",
+  "memory_action": "commit_persistent",
+  "oms_score": 1.0
+}

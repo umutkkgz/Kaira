@@ -1,0 +1,8 @@
+{
+  "runtime": {
+    "epistemic_threshold": 0.75,
+    "commit_threshold": 0.85,
+    "cache_threshold": 0.6,
+    "max_idl_iterations": 3
+  }
+}

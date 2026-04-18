@@ -1,0 +1,8 @@
+runtime:
+  epistemic_threshold: 0.75
+  commit_threshold: 0.85
+  cache_threshold: 0.60
+  max_idl_iterations: 3
+paths:
+  ontology: data/mini_ontology.json
+  policy: data/default_policy.json

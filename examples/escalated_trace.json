@@ -1,0 +1,15 @@
+{
+  "trace_id": "example-escalated-trace",
+  "query": "Can you diagnose my medical issue and write some code?",
+  "ecl_score": 0.0,
+  "ecl_reason": "Request falls outside bounded operational policy or requires human review.",
+  "ecl_decision": "escalate",
+  "idl_iterations": 0,
+  "validator_status": "not_run",
+  "ontology_hits": [],
+  "route_decision": "none",
+  "handoff_decision": "required",
+  "final_status": "escalated",
+  "memory_action": "reject_write",
+  "oms_score": 0.0
+}
