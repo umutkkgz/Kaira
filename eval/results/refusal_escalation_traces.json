@@ -10,7 +10,7 @@
     "passed": true,
     "oms_score": 0.0,
     "ecl_score": 0.25,
-    "latency_ms": 0.01704200985841453
+    "latency_ms": 0.030791998142376542
   },
   {
     "scenario_id": "approval_reservation",
@@ -23,7 +23,7 @@
     "passed": true,
     "oms_score": 0.0,
     "ecl_score": 0.85,
-    "latency_ms": 0.017625003238208592
+    "latency_ms": 0.03304099664092064
   },
   {
     "scenario_id": "escalate_medical",
@@ -36,7 +36,7 @@
     "passed": true,
     "oms_score": 0.0,
     "ecl_score": 0.0,
-    "latency_ms": 0.012375006917864084
+    "latency_ms": 0.021957996068522334
   },
   {
     "scenario_id": "adv_life_coach",
@@ -49,6 +49,6 @@
     "passed": true,
     "oms_score": 0.0,
     "ecl_score": 0.575,
-    "latency_ms": 0.0111250119516626
+    "latency_ms": 0.021792002371512353
   }
 ]

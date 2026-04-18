@@ -70,6 +70,18 @@ Run the demo:
 make demo
 ```
 
+Run a single prompt:
+
+```bash
+python3 run_demo.py --prompt "What time does the gym open?"
+```
+
+Run interactive mode:
+
+```bash
+python3 run_demo.py --interactive
+```
+
 Run the evaluation harness:
 
 ```bash
@@ -165,6 +177,7 @@ The benchmark harness is implemented in [kaira/eval/benchmarks.py](kaira/eval/be
 - approval-required tool cases
 
 Current benchmark artifacts are written to [eval/results](eval/results).
+These include `benchmark_summary.json`, `per_case_results.jsonl`, `sample_traces.json`, and `metrics_table.md`.
 
 ## Repository Structure
 
@@ -225,4 +238,4 @@ The canonical implementation is the `kaira/` package.
 
 ## Citation
 
-If you use or discuss KAIRA, cite the paper in [paper/kaira_arxiv.tex](paper/kaira_arxiv.tex).
+If you use or discuss KAIRA, cite the paper in [paper/kaira_arxiv.pdf](paper/kaira_arxiv.pdf).

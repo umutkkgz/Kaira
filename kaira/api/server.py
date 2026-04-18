@@ -65,6 +65,31 @@ def run_eval() -> dict:
     }
 
 
+@app.get("/benchmarks/summary")
+def benchmark_summary() -> dict:
+    summary_path = ROOT / "eval" / "results" / "benchmark_summary.json"
+    if not summary_path.exists():
+        result = BenchmarkRunner(controller).export(ROOT / "eval" / "results")
+        return {
+            "run_id": result.run_id,
+            "scenario_count": result.scenario_count,
+            "metrics": result.metrics,
+        }
+    return load_config(summary_path)
+
+
+@app.post("/simulate")
+def simulate(payload: dict) -> dict:
+    response = controller.process(UserInput(query=payload["query"], session_id=payload.get("session_id", "simulate-session")))
+    TRACE_STORE[response.trace.trace_id] = response.trace.to_dict()
+    return {
+        "simulation": True,
+        "trace": response.trace.to_dict(),
+        "final_text": response.text,
+        "status": response.final_status,
+    }
+
+
 @app.get("/trace/{trace_id}")
 def get_trace(trace_id: str) -> dict:
     return TRACE_STORE.get(trace_id, {"error": "trace_not_found"})

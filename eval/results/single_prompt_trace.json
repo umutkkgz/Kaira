@@ -1,0 +1,27 @@
+{
+  "trace_id": "513c783a-0ef2-4411-b835-4f5780fcca18",
+  "query": "What time does the gym open?",
+  "ecl_score": 0.85,
+  "ecl_reason": "Query appears to be supported by the bounded ontology.",
+  "ecl_decision": "proceed",
+  "idl_iterations": 1,
+  "validator_status": "passed",
+  "ontology_hits": [
+    "gym_service"
+  ],
+  "route_decision": "gym_info",
+  "handoff_decision": "not_required",
+  "final_status": "answered",
+  "memory_action": "commit_persistent",
+  "latency_breakdown_ms": {
+    "state_lookup": 0.020209001377224922,
+    "ecl": 0.039874998037703335,
+    "routing": 0.02195900015067309,
+    "idl_generation": 0.009792012860998511,
+    "idl_validation": 0.06483300239779055,
+    "total": 0.2205829950980842
+  },
+  "oms_score": 1.0,
+  "rejection_reason": null,
+  "output_text": "The fitness center is located on the 2nd floor and is open 24/7."
+}

@@ -6,6 +6,24 @@ Run:
 python3 run_demo.py
 ```
 
+Single-prompt mode:
+
+```bash
+python3 run_demo.py --prompt "What time does the gym open?"
+```
+
+Interactive mode:
+
+```bash
+python3 run_demo.py --interactive
+```
+
+Benchmark mode:
+
+```bash
+python3 run_demo.py --benchmark
+```
+
 The script prints a compact runtime profile and then executes five scenarios:
 
 1. accepted in-domain answer
